@@ -23,4 +23,28 @@ export class ProductRepositoryImpl implements IProductRepository {
       },
     });
   }
+
+  async updateProduct(id: string, formData: FormData): Promise<Product> {
+    return apiFetch<Product>(`/products/${id}`, {
+      method: "PUT", // Postman said PUT
+      body: formData,
+      headers: {
+        "Content-Type": "undefined",
+      },
+    });
+  }
+
+  async deleteProduct(id: string): Promise<void> {
+    return apiFetch<void>(`/products/${id}`, {
+      method: "DELETE",
+    });
+  }
+
+  async searchProducts(query: string): Promise<Product[]> {
+    return apiFetch<Product[]>(`/products/search?q=${encodeURIComponent(query)}`);
+  }
+
+  async filterProducts(type: string): Promise<Product[]> {
+    return apiFetch<Product[]>(`/products/filter?type=${type}`);
+  }
 }

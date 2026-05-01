@@ -12,4 +12,17 @@ export class CategoryRepositoryImpl implements ICategoryRepository {
       body: JSON.stringify({ name, imageUrl }),
     });
   }
+
+  async updateCategory(id: string, name: string, imageUrl: string): Promise<Category> {
+    return apiFetch<Category>(`/categories/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ name, imageUrl }),
+    });
+  }
+
+  async deleteCategory(id: string): Promise<void> {
+    return apiFetch<void>(`/categories/${id}`, {
+      method: "DELETE",
+    });
+  }
 }

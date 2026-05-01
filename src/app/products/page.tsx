@@ -2,55 +2,153 @@
 
 import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { getProductsUseCase } from "@/core";
+import { getProductsUseCase, searchProductsUseCase, filterProductsUseCase } from "@/core";
 import { Product } from "@/core/domain/entities/Product";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all");
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const data = await getProductsUseCase.execute();
+      setProducts(data);
+      setActiveFilter("all");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) {
+      fetchProducts();
+      return;
+    }
+    setLoading(true);
+    try {
+      const data = await searchProductsUseCase.execute(searchQuery);
+      setProducts(data);
+      setActiveFilter("search");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilter = async (type: string) => {
+    setLoading(true);
+    setActiveFilter(type);
+    try {
+      let data;
+      if (type === "all") {
+        data = await getProductsUseCase.execute();
+      } else {
+        data = await filterProductsUseCase.execute(type);
+      }
+      setProducts(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getProductsUseCase.execute();
-        setProducts(data);
-      } catch (err: any) {
-        setError(err.message || "Failed to load products");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProducts();
   }, []);
 
+  const filterOptions = [
+    { label: "All", value: "all" },
+    { label: "Hottest", value: "hottest" },
+    { label: "Popular", value: "popular" },
+    { label: "New", value: "new" },
+    { label: "Top Rated", value: "top" },
+  ];
+
   return (
     <main>
-      <div style={{ padding: "8rem 1rem 4rem", maxWidth: "1200px", margin: "0 auto" }}>
-        <div style={{ marginBottom: "3rem", textAlign: "center" }}>
-          <h1 style={{ fontSize: "3rem", marginBottom: "1rem" }}>Our Products</h1>
-          <p style={{ color: "var(--muted)", fontSize: "1.1rem" }}>
-            Explore our curated selection of premium products.
-          </p>
-        </div>
+      {/* Hero Section for Products */}
+      <section style={{ padding: "8rem 1rem 4rem", textAlign: "center", background: "linear-gradient(to bottom, var(--secondary), transparent)" }}>
+        <h1 style={{ fontSize: "3.5rem", marginBottom: "1rem" }}>Explore Our Products</h1>
+        <p style={{ color: "var(--muted)", maxWidth: "600px", margin: "0 auto 3rem" }}>
+          Quality items curated just for you. Use search or filters to find exactly what you need.
+        </p>
 
-        {loading ? (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "2rem" }}>
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <div key={n} className="glass" style={{ height: "400px", animation: "pulse 2s infinite" }}></div>
-            ))}
-          </div>
-        ) : error ? (
-          <div className="glass" style={{ padding: "4rem", textAlign: "center", color: "#ef4444" }}>
-            <h3>Oops! {error}</h3>
-            <button onClick={() => window.location.reload()} style={{ marginTop: "1rem", color: "var(--primary)", textDecoration: "underline" }}>
-              Try again
+        {/* Search Bar */}
+        <form onSubmit={handleSearch} style={{ maxWidth: "600px", margin: "0 auto", display: "flex", gap: "1rem" }}>
+          <input 
+            type="text" 
+            placeholder="Search products..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              flex: 1,
+              padding: "1rem 1.5rem",
+              borderRadius: "var(--radius)",
+              background: "var(--background)",
+              border: "1px solid var(--border)",
+              color: "var(--foreground)",
+              fontSize: "1rem",
+              outline: "none"
+            }}
+          />
+          <button type="submit" style={{ 
+            padding: "1rem 2rem", 
+            borderRadius: "var(--radius)", 
+            background: "var(--primary)", 
+            color: "white", 
+            fontWeight: 600,
+            cursor: "pointer"
+          }}>
+            Search
+          </button>
+        </form>
+
+        {/* Filter Chips */}
+        <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginTop: "2rem", flexWrap: "wrap" }}>
+          {filterOptions.map((opt) => (
+            <button 
+              key={opt.value}
+              onClick={() => handleFilter(opt.value)}
+              style={{
+                padding: "0.6rem 1.2rem",
+                borderRadius: "100px",
+                background: activeFilter === opt.value ? "var(--primary)" : "var(--background)",
+                color: activeFilter === opt.value ? "white" : "var(--foreground)",
+                border: "1px solid var(--border)",
+                cursor: "pointer",
+                fontWeight: 500,
+                transition: "all 0.2s"
+              }}
+            >
+              {opt.label}
             </button>
-          </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Product Grid */}
+      <section style={{ padding: "4rem 1rem", maxWidth: "1200px", margin: "0 auto" }}>
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "4rem" }}>Searching for quality...</div>
         ) : products.length === 0 ? (
-          <div className="glass" style={{ padding: "4rem", textAlign: "center" }}>
-            <p>No products found. Start by adding some in the admin panel!</p>
+          <div style={{ textAlign: "center", padding: "4rem" }}>
+            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔍</div>
+            <h3>No products found</h3>
+            <p style={{ color: "var(--muted)" }}>Try a different search term or filter.</p>
+            <button 
+              onClick={fetchProducts}
+              style={{ marginTop: "1.5rem", color: "var(--primary)", background: "none", border: "none", cursor: "pointer", fontWeight: 600 }}
+            >
+              Clear all filters
+            </button>
           </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "2rem" }}>
@@ -59,7 +157,7 @@ export default function ProductsPage() {
             ))}
           </div>
         )}
-      </div>
+      </section>
     </main>
   );
 }

@@ -72,7 +72,7 @@ export default function CreateProductPage() {
     try {
       await adminUseCases.createProduct(data);
       setStatus({ type: "success", message: "Product created successfully!" });
-      setTimeout(() => router.push("/products"), 1500);
+      setTimeout(() => router.push("/admin/products"), 1500); // Updated path
     } catch (err: any) {
       setStatus({ type: "error", message: err.message || "Failed to create product" });
     }

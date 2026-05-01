@@ -21,8 +21,7 @@ export default function Navbar() {
       
       <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
         <Link href="/products" style={{ fontWeight: 500, fontSize: "0.95rem" }}>Products</Link>
-        <Link href="/admin/create-category" style={{ fontWeight: 500, fontSize: "0.85rem", color: "var(--muted)" }}>+ Category</Link>
-        <Link href="/admin/create-product" style={{ fontWeight: 500, fontSize: "0.85rem", color: "var(--muted)" }}>+ Product</Link>
+        <Link href="/admin/manage" style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--primary)" }}>⚙️ Manage</Link>
         <Link href="/login" style={{ fontWeight: 500, fontSize: "0.95rem" }}>Login</Link>
         <Link href="/signup">
           <button className="glass" style={{ 

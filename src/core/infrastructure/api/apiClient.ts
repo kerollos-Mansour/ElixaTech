@@ -15,7 +15,7 @@ export async function apiFetch<T>(
   
   if (headers["Content-Type"] === "undefined") {
     delete (headers as any)["Content-Type"];
-  } else if (!(options.body instanceof FormData)) {
+  } else if (options.body && !(options.body instanceof FormData)) {
     (headers as any)["Content-Type"] = "application/json";
   }
 

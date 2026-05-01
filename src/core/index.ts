@@ -6,9 +6,13 @@ import { SignupUseCase } from "./domain/use-cases/SignupUseCase";
 import { GetProductsUseCase, GetProductDetailUseCase, SearchProductsUseCase, FilterProductsUseCase } from "./domain/use-cases/ProductUseCases";
 import { AdminUseCases } from "./domain/use-cases/AdminUseCases";
 
+import { CartRepositoryImpl } from "./infrastructure/repositories/CartRepositoryImpl";
+import { CartUseCases } from "./domain/use-cases/CartUseCases";
+
 const authRepository = new AuthRepositoryImpl();
 const productRepository = new ProductRepositoryImpl();
 const categoryRepository = new CategoryRepositoryImpl();
+const cartRepository = new CartRepositoryImpl();
 
 export const loginUseCase = new LoginUseCase(authRepository);
 export const signupUseCase = new SignupUseCase(authRepository);
@@ -18,4 +22,7 @@ export const getProductDetailUseCase = new GetProductDetailUseCase(productReposi
 export const searchProductsUseCase = new SearchProductsUseCase(productRepository);
 export const filterProductsUseCase = new FilterProductsUseCase(productRepository);
 
+export const cartUseCases = new CartUseCases(cartRepository);
+
 export const adminUseCases = new AdminUseCases(productRepository, categoryRepository);
+

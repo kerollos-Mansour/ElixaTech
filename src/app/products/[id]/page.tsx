@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getProductDetailUseCase } from "@/core";
+import { getProductDetailUseCase, cartUseCases } from "@/core";
 import { Product } from "@/core/domain/entities/Product";
 import { API_CONFIG } from "@/core/infrastructure/api/config";
 
@@ -12,8 +12,22 @@ export default function ProductDetailPage() {
   const { id } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+    setAdding(true);
+    try {
+      await cartUseCases.addToCart(product.id, 1);
+      alert("Added to cart successfully!");
+    } catch (err: any) {
+      alert(err.message || "Failed to add to cart. Are you logged in?");
+    } finally {
+      setAdding(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -137,16 +151,22 @@ export default function ProductDetailPage() {
             </div>
 
             <div style={{ display: "flex", gap: "1rem" }}>
-              <button style={{ 
-                flex: 1, 
-                padding: "1rem", 
-                borderRadius: "var(--radius)", 
-                background: "var(--primary)", 
-                color: "white", 
-                fontWeight: 600,
-                boxShadow: "0 10px 15px -3px rgba(99, 102, 241, 0.4)"
-              }}>
-                Add to Cart
+              <button 
+                onClick={handleAddToCart}
+                disabled={adding}
+                style={{ 
+                  flex: 1, 
+                  padding: "1rem", 
+                  borderRadius: "var(--radius)", 
+                  background: "var(--primary)", 
+                  color: "white", 
+                  fontWeight: 600,
+                  boxShadow: "0 10px 15px -3px rgba(99, 102, 241, 0.4)",
+                  cursor: adding ? "not-allowed" : "pointer",
+                  opacity: adding ? 0.7 : 1
+                }}
+              >
+                {adding ? "Adding..." : "Add to Cart"}
               </button>
               <button className="glass" style={{ padding: "1rem" }}>
                 ♡

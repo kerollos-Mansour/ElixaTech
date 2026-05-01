@@ -32,3 +32,19 @@ export class FilterProductsUseCase {
     return this.productRepository.filterProducts(type);
   }
 }
+
+export class GetReviewsUseCase {
+  constructor(private productRepository: IProductRepository) {}
+
+  async execute(productId: string) {
+    return this.productRepository.getProductReviews(productId);
+  }
+}
+
+export class AddReviewUseCase {
+  constructor(private productRepository: IProductRepository) {}
+
+  async execute(productId: string, rating: number, comment: string) {
+    return this.productRepository.addProductReview(productId, rating, comment);
+  }
+}

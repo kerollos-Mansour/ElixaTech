@@ -47,4 +47,15 @@ export class ProductRepositoryImpl implements IProductRepository {
   async filterProducts(type: string): Promise<Product[]> {
     return apiFetch<Product[]>(`/products/filter?type=${type}`);
   }
+
+  async getProductReviews(productId: string): Promise<any> {
+    return apiFetch<any>(`/products/${productId}/reviews`);
+  }
+
+  async addProductReview(productId: string, rating: number, comment: string): Promise<any> {
+    return apiFetch<any>(`/products/${productId}/reviews`, {
+      method: "POST",
+      body: JSON.stringify({ rating, comment }),
+    });
+  }
 }

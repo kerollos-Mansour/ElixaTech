@@ -8,4 +8,6 @@ export interface IProductRepository {
   deleteProduct(id: string): Promise<void>;
   searchProducts(query: string): Promise<Product[]>;
   filterProducts(type: string): Promise<Product[]>;
+  getProductReviews(productId: string): Promise<any>;
+  addProductReview(productId: string, rating: number, comment: string): Promise<any>;
 }

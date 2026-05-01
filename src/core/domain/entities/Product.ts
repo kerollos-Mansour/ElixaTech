@@ -6,15 +6,16 @@ export interface ProductImage {
 
 export interface Product {
   id: string;
-  categoryId: string; // From Doc and your example
+  categoryId: string;
   name: string;
   description: string;
-  price: number | string; // Handle both types safely
+  price: number | string;
   stockQuantity: number;
-  rating?: number | null; // From your example
+  rating?: number | null; 
+  averageRating?: number | null; // From reviews API
+  totalReviews?: number; // From reviews API
   isRecommended: boolean;
-  images?: ProductImage[]; // Array of images as per Doc and example
-  // Fallbacks for compatibility
+  images?: ProductImage[];
   imageUrl?: string;
   image?: string;
 }

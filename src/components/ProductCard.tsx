@@ -59,7 +59,13 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <div>
-        <h3 style={{ fontSize: "1.1rem", marginBottom: "0.25rem" }}>{product.name}</h3>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.25rem" }}>
+        <h3 style={{ fontSize: "1.1rem" }}>{product.name}</h3>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", fontSize: "0.85rem" }}>
+          <span style={{ color: "#fbbf24" }}>★</span>
+          <span style={{ fontWeight: 600 }}>{product.averageRating || product.rating || 0}</span>
+        </div>
+      </div>
         <p style={{ color: "var(--muted)", fontSize: "0.85rem", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", height: "2.5rem" }}>
           {product.description}
         </p>

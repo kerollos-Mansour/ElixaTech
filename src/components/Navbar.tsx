@@ -3,10 +3,34 @@
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useFavorite } from "@/context/FavoriteContext";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const { cartCount } = useCart();
   const { favCount } = useFavorite();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("auth_token");
+    if (token) {
+      setIsLoggedIn(true);
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.role === 'ADMIN' || payload.role === 'admin' || payload.Role === 'ADMIN') {
+          setIsAdmin(true);
+        }
+      } catch (e) {
+        console.error("Failed to decode token", e);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("auth_token");
+    setIsLoggedIn(false);
+    window.location.href = "/login"; // Redirect to login page
+  };
 
   return (
     <nav className="glass" style={{
@@ -82,21 +106,43 @@ export default function Navbar() {
           👤 Profile
         </Link>
 
-        <Link href="/admin/manage" style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--primary)" }}>⚙️ Manage</Link>
-        <Link href="/login" style={{ fontWeight: 500, fontSize: "0.95rem" }}>Login</Link>
-        <Link href="/signup">
-          <button className="nav-link" style={{ 
-            padding: "0.6rem 1.5rem", 
-            fontWeight: 600, 
-            fontSize: "0.9rem",
-            background: "var(--primary)",
-            color: "white",
-            border: "none",
-            borderRadius: "var(--radius)"
-          }}>
-            Get Started
+        {isAdmin && (
+          <Link href="/admin/manage" style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--primary)" }}>⚙️ Manage</Link>
+        )}
+        
+        {!isLoggedIn ? (
+          <>
+            <Link href="/login" style={{ fontWeight: 500, fontSize: "0.95rem" }}>Login</Link>
+            <Link href="/signup">
+              <button className="nav-link" style={{ 
+                padding: "0.6rem 1.5rem", 
+                fontWeight: 600, 
+                fontSize: "0.9rem",
+                background: "var(--primary)",
+                color: "white",
+                border: "none",
+                borderRadius: "var(--radius)"
+              }}>
+                Get Started
+              </button>
+            </Link>
+          </>
+        ) : (
+          <button 
+            onClick={handleLogout} 
+            style={{ 
+              fontWeight: 600, 
+              fontSize: "0.95rem", 
+              background: "transparent", 
+              border: "none", 
+              color: "#ef4444", 
+              cursor: "pointer",
+              padding: "0.5rem"
+            }}
+          >
+            Sign Out
           </button>
-        </Link>
+        )}
       </div>
     </nav>
   );

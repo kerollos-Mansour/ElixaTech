@@ -47,7 +47,16 @@ export default function ProductsPage() {
     setActiveFilter(type);
     try {
       let data;
-      if (type === "all") {
+      if (type === "top") {
+        // Fetch all products first so we sort the full list
+        data = await getProductsUseCase.execute();
+        // Sort directly on the frontend (Highest rating first)
+        data = data.sort((a, b) => {
+          const ratingA = a.averageRating ?? a.rating ?? 0;
+          const ratingB = b.averageRating ?? b.rating ?? 0;
+          return ratingB - ratingA;
+        });
+      } else if (type === "all") {
         data = await getProductsUseCase.execute();
       } else {
         data = await filterProductsUseCase.execute(type);

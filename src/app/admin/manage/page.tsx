@@ -13,6 +13,7 @@ export default function AdminDashboard() {
         {[
           { title: "Manage Products", desc: "View, edit, or delete existing products. You can also add new products from there.", path: "/admin/products", icon: "📦" },
           { title: "Manage Categories", desc: "View, edit, or delete categories. You can also add new categories from there.", path: "/admin/categories", icon: "📁" },
+          { title: "Manage Orders", desc: "View all user orders and update their shipping and delivery statuses.", path: "/admin/orders", icon: "🚚" },
         ].map((item, i) => (
           <Link key={i} href={item.path} className="glass" style={{ padding: "3rem 2rem", textAlign: "center", transition: "transform 0.2s" }}>
             <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>{item.icon}</div>

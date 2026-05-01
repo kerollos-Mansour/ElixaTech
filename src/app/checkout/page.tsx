@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { orderUseCases, cartUseCases, addressUseCases } from "@/core";
 import { useToast } from "@/components/Toast";
@@ -22,6 +22,8 @@ export default function CheckoutPage() {
     paymentMethod: "CASH_ON_DELIVERY",
     addressId: ""
   });
+  
+  const isSubmitting = useRef(false);
 
   useEffect(() => {
     const fetchAddresses = async () => {
@@ -44,20 +46,34 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting.current) return;
+    
     if (!formData.addressId) {
       showToast("Please select or add a shipping address", "error");
       return;
     }
 
+    isSubmitting.current = true;
     setLoading(true);
     try {
       const order = await orderUseCases.createOrder(formData);
-      await cartUseCases.clearCart();
+      // Wait a tiny bit just to ensure backend changes propagate
+      await new Promise(r => setTimeout(r, 500)); 
+      
+      // We don't necessarily need to clear the cart if the backend does it automatically,
+      // but we do need to update our frontend context count to 0.
+      try {
+        await cartUseCases.clearCart(); 
+      } catch (e) {
+        // Ignore if backend already cleared it
+      }
+      
       await refreshCartCount();
       
       showToast("Order placed successfully!", "success");
       router.push(`/orders/${order.id}/track`);
     } catch (err: any) {
+      isSubmitting.current = false;
       showToast(err.message || "Failed to place order.", "error");
     } finally {
       setLoading(false);

@@ -15,7 +15,16 @@ export class OrderRepositoryImpl implements IOrderRepository {
   }
 
   async trackOrder(id: string): Promise<any> {
-    return apiFetch<any>(`/orders/${id}/track`);
+    try {
+      // Try the documented endpoint first
+      return await apiFetch<any>(`/orders/${id}/track`);
+    } catch (err: any) {
+      // Fallback: If route not found, fetch all orders and find the specific one
+      const orders = await apiFetch<Order[]>("/orders");
+      const order = orders.find(o => o.id === id);
+      if (!order) throw new Error("Order not found");
+      return order;
+    }
   }
 
   async getAllOrdersAdmin(): Promise<Order[]> {

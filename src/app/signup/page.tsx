@@ -22,8 +22,8 @@ export default function SignupPage() {
 
     try {
       await signupUseCase.execute(formData);
-      setStatus({ type: "success", message: "Account created! Redirecting to login..." });
-      setTimeout(() => router.push("/login"), 1500);
+      setStatus({ type: "success", message: "Account created! Redirecting to OTP verification..." });
+      setTimeout(() => router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`), 1500);
     } catch (error: any) {
       setStatus({ type: "error", message: error.message || "Registration failed" });
     }

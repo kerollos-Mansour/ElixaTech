@@ -3,6 +3,7 @@ import { ProductRepositoryImpl } from "./infrastructure/repositories/ProductRepo
 import { CategoryRepositoryImpl } from "./infrastructure/repositories/CategoryRepositoryImpl";
 import { LoginUseCase } from "./domain/use-cases/LoginUseCase";
 import { SignupUseCase } from "./domain/use-cases/SignupUseCase";
+import { VerifyOtpUseCase } from "./domain/use-cases/VerifyOtpUseCase";
 import { GetProductsUseCase, GetProductDetailUseCase, SearchProductsUseCase, FilterProductsUseCase, GetReviewsUseCase, AddReviewUseCase } from "./domain/use-cases/ProductUseCases";
 import { AdminUseCases } from "./domain/use-cases/AdminUseCases";
 
@@ -29,6 +30,7 @@ const addressRepository = new AddressRepositoryImpl();
 
 export const loginUseCase = new LoginUseCase(authRepository);
 export const signupUseCase = new SignupUseCase(authRepository);
+export const verifyOtpUseCase = new VerifyOtpUseCase(authRepository);
 export const getMeUseCase = new GetMeUseCase(authRepository);
 
 export const getProductsUseCase = new GetProductsUseCase(productRepository);

@@ -181,9 +181,11 @@ export default function CartPage() {
                 <span>Total</span>
                 <span>${(cart?.totalAmount || 0).toFixed(2)}</span>
               </div>
-              <button style={{ width: "100%", padding: "1.25rem", borderRadius: "var(--radius)", background: "var(--primary)", color: "white", fontWeight: 700, fontSize: "1rem", boxShadow: "0 10px 15px -3px rgba(99, 102, 241, 0.4)", cursor: "pointer", border: "none" }}>
-                Proceed to Checkout
-              </button>
+              <Link href="/checkout" style={{ width: "100%", display: "block" }}>
+                <button style={{ width: "100%", padding: "1.25rem", borderRadius: "var(--radius)", background: "var(--primary)", color: "white", fontWeight: 700, fontSize: "1rem", boxShadow: "0 10px 15px -3px rgba(99, 102, 241, 0.4)", cursor: "pointer", border: "none" }}>
+                  Proceed to Checkout
+                </button>
+              </Link>
             </div>
           </div>
         )}

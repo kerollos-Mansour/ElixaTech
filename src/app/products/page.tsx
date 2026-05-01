@@ -53,8 +53,15 @@ export default function ProductsPage() {
     setSearchQuery(value);
     
     if (value.trim().length > 0) {
+      const searchTerms = value.toLowerCase().split(/\s+/);
       const filtered = Array.from(new Set(
-        allProductNames.filter(name => name.toLowerCase().includes(value.toLowerCase()))
+        allProductNames.filter(name => {
+          const words = name.toLowerCase().split(/\s+/);
+          // Check if every search term matches the start of at least one word in the product name
+          return searchTerms.every(term => 
+            words.some(word => word.startsWith(term))
+          );
+        })
       )).slice(0, 5);
       setSuggestions(filtered);
       setShowSuggestions(true);

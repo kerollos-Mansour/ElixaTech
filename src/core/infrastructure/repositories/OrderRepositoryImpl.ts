@@ -22,11 +22,12 @@ export class OrderRepositoryImpl implements IOrderRepository {
   }
 
   async trackOrder(id: string): Promise<any> {
+    // The UI TrackOrderPage expects the FULL order details (price, address, items)
+    // not just the tracking steps. So we must use the endpoint that returns the full order.
     try {
-      // Try the documented endpoint first
-      return await apiFetch<any>(`/orders/${id}/track`);
+      return await apiFetch<any>(`/orders/${id}`);
     } catch (err: any) {
-      // Fallback: If route not found, fetch all orders and find the specific one
+      // Fallback if /orders/{id} fails for any reason
       const orders = await apiFetch<Order[]>("/orders");
       const order = orders.find(o => o.id === id);
       if (!order) throw new Error("Order not found");

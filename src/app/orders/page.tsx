@@ -82,16 +82,20 @@ export default function MyOrdersPage() {
                 </div>
                 
                 <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
-                  <Link href={`/orders/${order.id}`}>
-                    <button style={{ padding: "0.5rem 1rem", borderRadius: "var(--radius)", background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", cursor: "pointer", fontWeight: 600 }}>
-                      View Details
-                    </button>
-                  </Link>
-                  <Link href={`/orders/${order.id}/track`}>
-                    <button style={{ padding: "0.5rem 1rem", borderRadius: "var(--radius)", background: "var(--primary)", color: "white", border: "none", cursor: "pointer", fontWeight: 600 }}>
-                      Track Order
-                    </button>
-                  </Link>
+                  {order.status === "DELIVERED" && (
+                    <Link href={`/orders/${order.id}`}>
+                      <button style={{ padding: "0.5rem 1rem", borderRadius: "var(--radius)", background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)", cursor: "pointer", fontWeight: 600 }}>
+                        View Details
+                      </button>
+                    </Link>
+                  )}
+                  {order.status !== "DELIVERED" && (
+                    <Link href={`/orders/${order.id}/track`}>
+                      <button style={{ padding: "0.5rem 1rem", borderRadius: "var(--radius)", background: "var(--primary)", color: "white", border: "none", cursor: "pointer", fontWeight: 600 }}>
+                        Track Order
+                      </button>
+                    </Link>
+                  )}
                 </div>
               </div>
             ))}

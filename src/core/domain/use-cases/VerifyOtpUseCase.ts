@@ -7,6 +7,7 @@ export class VerifyOtpUseCase {
     const response = await this.authRepository.verifyOtp(email, otp);
     if (typeof window !== "undefined") {
       localStorage.setItem("auth_token", response.token);
+      localStorage.setItem("user_role", response.user.role);
     }
     return response;
   }

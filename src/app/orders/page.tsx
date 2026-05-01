@@ -5,6 +5,7 @@ import Link from "next/link";
 import { orderUseCases } from "@/core";
 import { Order } from "@/core/domain/entities/Order";
 import { useToast } from "@/components/Toast";
+import { BoxIcon } from "@/components/Icons";
 
 export default function MyOrdersPage() {
   const { showToast } = useToast();
@@ -47,7 +48,9 @@ export default function MyOrdersPage() {
 
         {orders.length === 0 ? (
           <div className="glass" style={{ padding: "4rem", textAlign: "center" }}>
-            <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>📦</div>
+            <div style={{ color: "var(--muted)", marginBottom: "1.5rem" }}>
+              <BoxIcon size={64} />
+            </div>
             <h3>No orders yet</h3>
             <p style={{ color: "var(--muted)", marginBottom: "2rem" }}>You haven't placed any orders.</p>
             <Link href="/products">

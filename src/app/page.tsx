@@ -19,7 +19,7 @@ export default function Home() {
           { title: "Fast Delivery", desc: "Get your orders delivered to your doorstep with our express shipping service." },
           { title: "Customer Support", desc: "Our dedicated support team is available 24/7 to help with your inquiries." }
         ].map((feature, i) => (
-          <div key={i} className="glass animate-fade-in" style={{ padding: "3rem 2rem", animationDelay: `${(i + 3) * 100}ms` }}>
+          <div key={i} className="glass animate-fade-in card-hover" style={{ padding: "3rem 2rem", animationDelay: `${(i + 3) * 100}ms` }}>
             <div style={{ 
               width: "3rem", 
               height: "3rem", 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useFavorite } from "@/context/FavoriteContext";
 import { useEffect, useState } from "react";
+import { HeartIcon, CartIcon, OrdersIcon, ProfileIcon, ManageIcon } from "./Icons";
 
 export default function Navbar() {
   const { cartCount } = useCart();
@@ -15,20 +16,28 @@ export default function Navbar() {
     const token = localStorage.getItem("auth_token");
     if (token) {
       setIsLoggedIn(true);
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        if (payload.role === 'ADMIN' || payload.role === 'admin' || payload.Role === 'ADMIN') {
-          setIsAdmin(true);
+      const role = localStorage.getItem("user_role");
+      if (role === "ADMIN") {
+        setIsAdmin(true);
+      } else {
+        // Fallback to decode if role is not in localStorage yet
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          if (payload.role === 'ADMIN' || payload.role === 'admin' || payload.Role === 'ADMIN') {
+            setIsAdmin(true);
+          }
+        } catch (e) {
+          console.error("Failed to decode token", e);
         }
-      } catch (e) {
-        console.error("Failed to decode token", e);
       }
     }
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("auth_token");
+    localStorage.removeItem("user_role");
     setIsLoggedIn(false);
+    setIsAdmin(false);
     window.location.href = "/login"; // Redirect to login page
   };
 
@@ -54,7 +63,7 @@ export default function Navbar() {
         <Link href="/products" className="nav-link-item" style={{ fontWeight: 500, fontSize: "0.95rem" }}>Products</Link>
         
         <Link href="/favorites" className="nav-link-item" style={{ fontWeight: 500, fontSize: "0.95rem", position: "relative", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          ❤️ Favorites
+          <HeartIcon size={18} /> Favorites
           {favCount > 0 && (
             <span style={{
               background: "#ef4444",
@@ -77,7 +86,7 @@ export default function Navbar() {
         </Link>
         
         <Link href="/cart" className="nav-link-item" style={{ fontWeight: 500, fontSize: "0.95rem", position: "relative", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          🛒 Cart
+          <CartIcon size={18} /> Cart
           {cartCount > 0 && (
             <span style={{
               background: "var(--primary)",
@@ -100,14 +109,16 @@ export default function Navbar() {
         </Link>
 
         <Link href="/orders" className="nav-link-item" style={{ fontWeight: 500, fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          📦 Orders
+          <OrdersIcon size={18} /> Orders
         </Link>
         <Link href="/profile" className="nav-link-item" style={{ fontWeight: 500, fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          👤 Profile
+          <ProfileIcon size={18} /> Profile
         </Link>
 
         {isAdmin && (
-          <Link href="/admin/manage" style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--primary)" }}>⚙️ Manage</Link>
+          <Link href="/admin/manage" style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--primary)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <ManageIcon size={18} /> Manage
+          </Link>
         )}
         
         {!isLoggedIn ? (

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import { getProductsUseCase, searchProductsUseCase, filterProductsUseCase } from "@/core";
 import { Product } from "@/core/domain/entities/Product";
+import { SearchIcon } from "@/components/Icons";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -238,7 +239,9 @@ export default function ProductsPage() {
           <div style={{ textAlign: "center", padding: "4rem" }}>Searching for quality...</div>
         ) : products.length === 0 ? (
           <div style={{ textAlign: "center", padding: "4rem" }}>
-            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔍</div>
+            <div style={{ color: "var(--muted)", marginBottom: "1rem" }}>
+              <SearchIcon size={48} />
+            </div>
             <h3>No products found</h3>
             <p style={{ color: "var(--muted)" }}>Try a different search term or filter.</p>
             <button 

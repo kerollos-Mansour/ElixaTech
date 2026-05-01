@@ -4,10 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { orderUseCases } from "@/core";
-
-const LocationIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-);
+import { InvoiceIcon, LocationIcon, BoxIcon } from "@/components/Icons";
 
 export default function OrderDetailsPage() {
   const { id } = useParams();
@@ -57,7 +54,7 @@ export default function OrderDetailsPage() {
           {/* Order Info */}
           <div className="glass" style={{ padding: "2rem" }}>
             <h3 style={{ fontSize: "1.25rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              📄 Invoice Summary
+              <InvoiceIcon size={22} /> Invoice Summary
             </h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -115,8 +112,8 @@ export default function OrderDetailsPage() {
               {order.items.map((item: any) => (
                 <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem", background: "var(--secondary)", borderRadius: "var(--radius)", border: "1px solid var(--border)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <div style={{ width: "48px", height: "48px", background: "var(--background)", borderRadius: "var(--radius)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem" }}>
-                      📦
+                    <div style={{ width: "48px", height: "48px", background: "var(--background)", borderRadius: "var(--radius)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)" }}>
+                      <BoxIcon size={24} />
                     </div>
                     <div>
                       <p style={{ fontWeight: 600, fontSize: "1.05rem" }}>{item.product?.name || "Unknown Product"}</p>

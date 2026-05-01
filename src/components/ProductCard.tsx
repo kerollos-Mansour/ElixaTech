@@ -8,6 +8,7 @@ import { cartUseCases, favoriteUseCases } from "@/core";
 import { useToast } from "./Toast";
 import { useCart } from "@/context/CartContext";
 import { useFavorite } from "@/context/FavoriteContext";
+import { StarIcon } from "./Icons";
 
 const getImageUrl = API_CONFIG.getImageUrl;
 
@@ -57,7 +58,7 @@ export default function ProductCard({ product, isInitialFavorite = false, onRemo
   };
 
   return (
-    <Link href={`/products/${product.id}`} className="glass animate-fade-in" style={{
+    <Link href={`/products/${product.id}`} className="glass animate-fade-in card-hover" style={{
       display: "flex",
       flexDirection: "column",
       padding: "1rem",
@@ -134,7 +135,7 @@ export default function ProductCard({ product, isInitialFavorite = false, onRemo
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.25rem" }}>
         <h3 style={{ fontSize: "1.1rem" }}>{product.name}</h3>
         <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", fontSize: "0.85rem" }}>
-          <span style={{ color: "#fbbf24" }}>★</span>
+          <StarIcon size={14} />
           <span style={{ fontWeight: 600 }}>{product.averageRating || product.rating || 0}</span>
         </div>
       </div>

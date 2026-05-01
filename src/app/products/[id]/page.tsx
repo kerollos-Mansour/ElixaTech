@@ -13,6 +13,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -21,6 +22,10 @@ export default function ProductDetailPage() {
       try {
         const data = await getProductDetailUseCase.execute(id as string);
         setProduct(data);
+        
+        // Set initial selected image
+        const initialImg = getImageUrl(data.images || data.image || data.imageUrl);
+        setSelectedImage(initialImg);
       } catch (err: any) {
         setError(err.message || "Failed to load product details");
       } finally {
@@ -45,23 +50,53 @@ export default function ProductDetailPage() {
     </main>
   );
 
+  const allImages = product.images || [];
+
   return (
     <main>
       <div style={{ padding: "8rem 1rem 4rem", maxWidth: "1200px", margin: "0 auto" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: "4rem" }}>
-          <div className="glass" style={{ 
-            aspectRatio: "1/1", 
-            borderRadius: "var(--radius)",
-            overflow: "hidden",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "var(--secondary)"
-          }}>
-            {getImageUrl(product.image || product.imageUrl) ? (
-              <img src={getImageUrl(product.image || product.imageUrl)!} alt={product.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : (
-              <span style={{ color: "var(--muted)" }}>No Image Available</span>
+          
+          {/* Image Gallery Section */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <div className="glass" style={{ 
+              aspectRatio: "1/1", 
+              borderRadius: "var(--radius)",
+              overflow: "hidden",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "var(--secondary)"
+            }}>
+              {selectedImage ? (
+                <img src={selectedImage} alt={product.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                <span style={{ color: "var(--muted)" }}>No Image Available</span>
+              )}
+            </div>
+
+            {/* Thumbnails */}
+            {allImages.length > 1 && (
+              <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+                {allImages.map((img) => (
+                  <button 
+                    key={img.id}
+                    onClick={() => setSelectedImage(getImageUrl(img.url))}
+                    style={{ 
+                      width: "80px", 
+                      height: "80px", 
+                      borderRadius: "0.5rem", 
+                      overflow: "hidden", 
+                      border: selectedImage === getImageUrl(img.url) ? "2px solid var(--primary)" : "2px solid transparent",
+                      padding: 0,
+                      cursor: "pointer",
+                      background: "none"
+                    }}
+                  >
+                    <img src={getImageUrl(img.url)!} alt="thumbnail" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </button>
+                ))}
+              </div>
             )}
           </div>
 
@@ -83,7 +118,7 @@ export default function ProductDetailPage() {
               <h1 style={{ fontSize: "3rem" }}>{product.name}</h1>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <span style={{ color: "#fbbf24" }}>★</span>
-                <span style={{ fontWeight: 600 }}>{product.averageRating || "New"}</span>
+                <span style={{ fontWeight: 600 }}>{product.rating || "New"}</span>
                 <span style={{ color: "var(--muted)", fontSize: "0.9rem" }}>(Not yet reviewed)</span>
               </div>
             </div>

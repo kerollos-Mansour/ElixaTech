@@ -16,7 +16,8 @@ export default function CreateProductPage() {
     categoryId: "",
     isRecommended: false,
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [status, setStatus] = useState<{ type: "idle" | "loading" | "success" | "error", message?: string }>({ type: "idle" });
 
   useEffect(() => {
@@ -32,10 +33,24 @@ export default function CreateProductPage() {
     fetchCategories();
   }, []);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setImageFiles(prev => [...prev, ...files]);
+    
+    // Generate previews
+    const newPreviews = files.map(file => URL.createObjectURL(file));
+    setPreviews(prev => [...prev, ...newPreviews]);
+  };
+
+  const removeImage = (index: number) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!imageFile) {
-      setStatus({ type: "error", message: "Please select an image" });
+    if (imageFiles.length === 0) {
+      setStatus({ type: "error", message: "Please select at least one image" });
       return;
     }
 
@@ -48,7 +63,11 @@ export default function CreateProductPage() {
     data.append("stockQuantity", formData.stockQuantity);
     data.append("categoryId", formData.categoryId);
     data.append("isRecommended", String(formData.isRecommended));
-    data.append("image", imageFile);
+    
+    // Append all images with the key 'images' as per documentation
+    imageFiles.forEach(file => {
+      data.append("images", file);
+    });
 
     try {
       await adminUseCases.createProduct(data);
@@ -137,15 +156,30 @@ export default function CreateProductPage() {
             </select>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={{ fontWeight: 500 }}>Product Image</label>
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem", gridColumn: "1 / -1" }}>
+            <label style={{ fontWeight: 500 }}>Product Images (Multiple)</label>
             <input
               type="file"
               accept="image/*"
-              required
-              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              multiple
+              onChange={handleImageChange}
               style={{ padding: "0.6rem", color: "var(--muted)" }}
             />
+            
+            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+              {previews.map((src, i) => (
+                <div key={i} style={{ position: "relative", width: "80px", height: "80px" }}>
+                  <img src={src} alt="preview" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "0.5rem" }} />
+                  <button 
+                    type="button"
+                    onClick={() => removeImage(i)}
+                    style={{ position: "absolute", top: "-5px", right: "-5px", background: "#ef4444", color: "white", borderRadius: "50%", width: "20px", height: "20px", border: "none", cursor: "pointer", fontSize: "12px" }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>

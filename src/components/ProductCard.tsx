@@ -34,8 +34,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           color: "var(--muted)",
           fontSize: "0.8rem"
         }}>
-          {getImageUrl(product.image || product.imageUrl) ? (
-            <img src={getImageUrl(product.image || product.imageUrl)!} alt={product.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          {getImageUrl(product.images || product.image || product.imageUrl || (product as any).ProductImage) ? (
+            <img src={getImageUrl(product.images || product.image || product.imageUrl || (product as any).ProductImage)!} alt={product.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
             "No Image Available"
           )}

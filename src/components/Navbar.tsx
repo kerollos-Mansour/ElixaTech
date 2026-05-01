@@ -75,6 +75,13 @@ export default function Navbar() {
           )}
         </Link>
 
+        <Link href="/orders" className="nav-link-item" style={{ fontWeight: 500, fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          📦 Orders
+        </Link>
+        <Link href="/profile" className="nav-link-item" style={{ fontWeight: 500, fontSize: "0.95rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          👤 Profile
+        </Link>
+
         <Link href="/admin/manage" style={{ fontWeight: 600, fontSize: "0.85rem", color: "var(--primary)" }}>⚙️ Manage</Link>
         <Link href="/login" style={{ fontWeight: 500, fontSize: "0.95rem" }}>Login</Link>
         <Link href="/signup">

@@ -15,15 +15,21 @@ import { FavoriteUseCases } from "./domain/use-cases/FavoriteUseCases";
 import { OrderRepositoryImpl } from "./infrastructure/repositories/OrderRepositoryImpl";
 import { OrderUseCases } from "./domain/use-cases/OrderUseCases";
 
+import { AddressRepositoryImpl } from "./infrastructure/repositories/AddressRepositoryImpl";
+import { AddressUseCases } from "./domain/use-cases/AddressUseCases";
+import { GetMeUseCase } from "./domain/use-cases/GetMeUseCase";
+
 const authRepository = new AuthRepositoryImpl();
 const productRepository = new ProductRepositoryImpl();
 const categoryRepository = new CategoryRepositoryImpl();
 const cartRepository = new CartRepositoryImpl();
 const favoriteRepository = new FavoriteRepositoryImpl();
 const orderRepository = new OrderRepositoryImpl();
+const addressRepository = new AddressRepositoryImpl();
 
 export const loginUseCase = new LoginUseCase(authRepository);
 export const signupUseCase = new SignupUseCase(authRepository);
+export const getMeUseCase = new GetMeUseCase(authRepository);
 
 export const getProductsUseCase = new GetProductsUseCase(productRepository);
 export const getProductDetailUseCase = new GetProductDetailUseCase(productRepository);
@@ -35,5 +41,6 @@ export const addReviewUseCase = new AddReviewUseCase(productRepository);
 export const cartUseCases = new CartUseCases(cartRepository);
 export const favoriteUseCases = new FavoriteUseCases(favoriteRepository);
 export const orderUseCases = new OrderUseCases(orderRepository);
+export const addressUseCases = new AddressUseCases(addressRepository);
 
 export const adminUseCases = new AdminUseCases(productRepository, categoryRepository);

@@ -16,4 +16,8 @@ export class AuthRepositoryImpl implements IAuthRepository {
       body: JSON.stringify(userData),
     });
   }
+
+  async getMe(): Promise<User> {
+    return apiFetch<User>("/auth/me");
+  }
 }

@@ -26,4 +26,10 @@ export class CartRepositoryImpl implements ICartRepository {
       method: "DELETE",
     });
   }
+
+  async clearCart(): Promise<void> {
+    return apiFetch<void>("/cart/clear", {
+      method: "POST",
+    });
+  }
 }

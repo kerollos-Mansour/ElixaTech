@@ -18,4 +18,8 @@ export class CartUseCases {
   async removeFromCart(itemId: string) {
     return this.cartRepository.removeFromCart(itemId);
   }
+
+  async clearCart() {
+    return this.cartRepository.clearCart();
+  }
 }

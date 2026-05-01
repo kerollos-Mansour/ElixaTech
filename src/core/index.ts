@@ -9,10 +9,14 @@ import { AdminUseCases } from "./domain/use-cases/AdminUseCases";
 import { CartRepositoryImpl } from "./infrastructure/repositories/CartRepositoryImpl";
 import { CartUseCases } from "./domain/use-cases/CartUseCases";
 
+import { FavoriteRepositoryImpl } from "./infrastructure/repositories/FavoriteRepositoryImpl";
+import { FavoriteUseCases } from "./domain/use-cases/FavoriteUseCases";
+
 const authRepository = new AuthRepositoryImpl();
 const productRepository = new ProductRepositoryImpl();
 const categoryRepository = new CategoryRepositoryImpl();
 const cartRepository = new CartRepositoryImpl();
+const favoriteRepository = new FavoriteRepositoryImpl();
 
 export const loginUseCase = new LoginUseCase(authRepository);
 export const signupUseCase = new SignupUseCase(authRepository);
@@ -25,6 +29,6 @@ export const getReviewsUseCase = new GetReviewsUseCase(productRepository);
 export const addReviewUseCase = new AddReviewUseCase(productRepository);
 
 export const cartUseCases = new CartUseCases(cartRepository);
+export const favoriteUseCases = new FavoriteUseCases(favoriteRepository);
 
 export const adminUseCases = new AdminUseCases(productRepository, categoryRepository);
-

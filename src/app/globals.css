@@ -95,6 +95,42 @@ button {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Interactive Elements */
+button:not(.nav-link), .btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled):not(.nav-link), .btn:hover {
+  transform: scale(1.03);
+  filter: brightness(1.1);
+}
+
+button:active:not(:disabled):not(.nav-link), .btn:active {
+  transform: scale(0.98);
+}
+
+/* Specific button styles */
+.glass-button {
+  transition: all 0.2s ease;
+}
+.glass-button:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.qty-btn {
+  transition: all 0.2s ease;
+}
+
+.qty-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--primary) !important;
+  transform: scale(1.2) !important;
 }
 
 /* Animations */
@@ -107,9 +143,11 @@ button {
   animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.delay-100 { animation-delay: 0.1s; }
-.delay-200 { animation-delay: 0.2s; }
-.delay-300 { animation-delay: 0.3s; }
+.delay-100 { animation-delay: 0.1s; opacity: 0; }
+.delay-200 { animation-delay: 0.2s; opacity: 0; }
+.delay-300 { animation-delay: 0.3s; opacity: 0; }
+.delay-400 { animation-delay: 0.4s; opacity: 0; }
+.delay-500 { animation-delay: 0.5s; opacity: 0; }
 
 /* Grid Background */
 .bg-grid {

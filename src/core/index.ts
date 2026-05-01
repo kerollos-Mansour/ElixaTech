@@ -22,7 +22,7 @@ import { GetMeUseCase } from "./domain/use-cases/GetMeUseCase";
 
 const authRepository = new AuthRepositoryImpl();
 const productRepository = new ProductRepositoryImpl();
-const categoryRepository = new CategoryRepositoryImpl();
+export const categoryRepository = new CategoryRepositoryImpl();
 const cartRepository = new CartRepositoryImpl();
 const favoriteRepository = new FavoriteRepositoryImpl();
 const orderRepository = new OrderRepositoryImpl();

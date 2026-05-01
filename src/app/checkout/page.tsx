@@ -22,7 +22,16 @@ export default function CheckoutPage() {
     paymentMethod: "CASH_ON_DELIVERY",
     addressId: ""
   });
+
+  const [cardDetails, setCardDetails] = useState({
+    name: "",
+    number: "",
+    expiry: "",
+    cvc: ""
+  });
   
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [hoveredOption, setHoveredOption] = useState<string | null>(null);
   const isSubmitting = useRef(false);
 
   useEffect(() => {
@@ -53,10 +62,31 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (formData.paymentMethod === "CREDIT_CARD") {
+      if (!cardDetails.name || !cardDetails.number || !cardDetails.expiry || !cardDetails.cvc) {
+        showToast("Please fill in all credit card details", "error");
+        return;
+      }
+      if (cardDetails.number.replace(/\s/g, '').length < 16) {
+        showToast("Invalid card number", "error");
+        return;
+      }
+    }
+
     isSubmitting.current = true;
     setLoading(true);
     try {
-      const order = await orderUseCases.createOrder(formData);
+      let order = await orderUseCases.createOrder(formData);
+      
+      // If user selected Credit Card, simulate processing via the Backend Stripe Endpoint
+      if (formData.paymentMethod === "CREDIT_CARD") {
+        try {
+          order = await orderUseCases.payOrder(order.id, "pm_card_visa");
+        } catch (paymentErr: any) {
+          throw new Error("Order created but payment processing failed: " + paymentErr.message);
+        }
+      }
+
       // Wait a tiny bit just to ensure backend changes propagate
       await new Promise(r => setTimeout(r, 500)); 
       
@@ -78,6 +108,26 @@ export default function CheckoutPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    const matches = v.match(/\d{4,16}/g);
+    const match = matches && matches[0] || '';
+    const parts = [];
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    if (parts.length) return parts.join(' ');
+    return value;
+  };
+
+  const formatExpiry = (value: string) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    if (v.length >= 2) {
+      return `${v.substring(0, 2)}/${v.substring(2, 4)}`;
+    }
+    return v;
   };
 
   if (fetchingAddresses) return <main style={{ padding: "8rem 1rem", textAlign: "center" }}>Loading checkout...</main>;
@@ -141,17 +191,151 @@ export default function CheckoutPage() {
                 />
               </div>
 
-              <div>
+              <div style={{ marginBottom: formData.paymentMethod === "CREDIT_CARD" ? "1rem" : "0", position: "relative" }}>
                 <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600 }}>Payment Method</label>
-                <select 
-                  value={formData.paymentMethod}
-                  onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                  style={{ width: "100%", padding: "1rem", borderRadius: "var(--radius)", background: "var(--secondary)", border: "1px solid var(--border)", color: "var(--foreground)" }}
+                
+                <div 
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  style={{ 
+                    width: "100%", 
+                    padding: "1rem", 
+                    borderRadius: "var(--radius)", 
+                    background: "var(--secondary)", 
+                    border: isDropdownOpen ? "1px solid var(--primary)" : "1px solid var(--border)", 
+                    color: "var(--foreground)",
+                    cursor: "pointer",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    transition: "all 0.2s ease"
+                  }}
                 >
-                  <option value="CASH_ON_DELIVERY">Cash on Delivery</option>
-                  <option value="CREDIT_CARD">Credit Card</option>
-                </select>
+                  <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 500 }}>
+                    {formData.paymentMethod === "CASH_ON_DELIVERY" ? "💵 Cash on Delivery" : "💳 Credit Card"}
+                  </span>
+                  <svg 
+                    width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    style={{ transform: isDropdownOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}
+                  >
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </div>
+
+                {/* Dropdown Options */}
+                <div style={{ 
+                  position: "absolute", 
+                  top: "100%", 
+                  left: 0, 
+                  right: 0, 
+                  marginTop: "0.5rem",
+                  background: "var(--secondary)", 
+                  border: "1px solid var(--border)", 
+                  borderRadius: "var(--radius)",
+                  boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.2)",
+                  zIndex: 10,
+                  overflow: "hidden",
+                  opacity: isDropdownOpen ? 1 : 0,
+                  transform: isDropdownOpen ? "translateY(0)" : "translateY(-10px)",
+                  pointerEvents: isDropdownOpen ? "auto" : "none",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                }}>
+                  <div 
+                    onClick={() => { setFormData({ ...formData, paymentMethod: "CASH_ON_DELIVERY" }); setIsDropdownOpen(false); }}
+                    onMouseEnter={() => setHoveredOption("CASH_ON_DELIVERY")}
+                    onMouseLeave={() => setHoveredOption(null)}
+                    style={{ 
+                      padding: "1rem", 
+                      cursor: "pointer", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      gap: "0.5rem",
+                      background: formData.paymentMethod === "CASH_ON_DELIVERY" ? "rgba(99, 102, 241, 0.15)" : (hoveredOption === "CASH_ON_DELIVERY" ? "rgba(99, 102, 241, 0.08)" : "transparent"),
+                      borderBottom: "1px solid var(--border)",
+                      transition: "background 0.2s"
+                    }}
+                  >
+                    💵 Cash on Delivery
+                  </div>
+                  <div 
+                    onClick={() => { setFormData({ ...formData, paymentMethod: "CREDIT_CARD" }); setIsDropdownOpen(false); }}
+                    onMouseEnter={() => setHoveredOption("CREDIT_CARD")}
+                    onMouseLeave={() => setHoveredOption(null)}
+                    style={{ 
+                      padding: "1rem", 
+                      cursor: "pointer", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      gap: "0.5rem",
+                      background: formData.paymentMethod === "CREDIT_CARD" ? "rgba(99, 102, 241, 0.15)" : (hoveredOption === "CREDIT_CARD" ? "rgba(99, 102, 241, 0.08)" : "transparent"),
+                      transition: "background 0.2s"
+                    }}
+                  >
+                    💳 Credit Card
+                  </div>
+                </div>
               </div>
+
+              {formData.paymentMethod === "CREDIT_CARD" && (
+                <div className="animate-fade-in" style={{ padding: "1.5rem", background: "var(--secondary)", borderRadius: "var(--radius)", border: "1px solid var(--border)", marginBottom: "1rem" }}>
+                  <div style={{ marginBottom: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontWeight: 600, fontSize: "1.1rem" }}>Card Details</span>
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <div style={{ width: "40px", height: "25px", background: "#1a1f36", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", fontStyle: "italic", fontWeight: 700, fontSize: "0.7rem", color: "white" }}>VISA</div>
+                      <div style={{ width: "40px", height: "25px", background: "#ff5f00", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "0.6rem", color: "white" }}>MC</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <div>
+                      <label style={{ display: "block", marginBottom: "0.5rem", color: "var(--muted)", fontSize: "0.9rem" }}>Cardholder Name</label>
+                      <input 
+                        type="text" 
+                        placeholder="JOHN DOE"
+                        value={cardDetails.name}
+                        onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value.toUpperCase() })}
+                        style={{ width: "100%", padding: "0.8rem", borderRadius: "var(--radius)", background: "var(--background)", border: "1px solid var(--border)", color: "var(--foreground)", textTransform: "uppercase" }}
+                      />
+                    </div>
+                    
+                    <div>
+                      <label style={{ display: "block", marginBottom: "0.5rem", color: "var(--muted)", fontSize: "0.9rem" }}>Card Number</label>
+                      <input 
+                        type="text" 
+                        placeholder="0000 0000 0000 0000"
+                        maxLength={19}
+                        value={cardDetails.number}
+                        onChange={(e) => setCardDetails({ ...cardDetails, number: formatCardNumber(e.target.value) })}
+                        style={{ width: "100%", padding: "0.8rem", borderRadius: "var(--radius)", background: "var(--background)", border: "1px solid var(--border)", color: "var(--foreground)", fontFamily: "monospace", fontSize: "1.1rem", letterSpacing: "2px" }}
+                      />
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                      <div>
+                        <label style={{ display: "block", marginBottom: "0.5rem", color: "var(--muted)", fontSize: "0.9rem" }}>Expiry Date</label>
+                        <input 
+                          type="text" 
+                          placeholder="MM/YY"
+                          maxLength={5}
+                          value={cardDetails.expiry}
+                          onChange={(e) => setCardDetails({ ...cardDetails, expiry: formatExpiry(e.target.value) })}
+                          style={{ width: "100%", padding: "0.8rem", borderRadius: "var(--radius)", background: "var(--background)", border: "1px solid var(--border)", color: "var(--foreground)", fontFamily: "monospace", fontSize: "1.1rem" }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: "block", marginBottom: "0.5rem", color: "var(--muted)", fontSize: "0.9rem" }}>CVC</label>
+                        <input 
+                          type="password" 
+                          placeholder="***"
+                          maxLength={3}
+                          value={cardDetails.cvc}
+                          onChange={(e) => setCardDetails({ ...cardDetails, cvc: e.target.value.replace(/\D/g, '') })}
+                          style={{ width: "100%", padding: "0.8rem", borderRadius: "var(--radius)", background: "var(--background)", border: "1px solid var(--border)", color: "var(--foreground)", fontFamily: "monospace", fontSize: "1.1rem", letterSpacing: "3px" }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <button 
                 type="submit" 

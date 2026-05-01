@@ -7,6 +7,10 @@ export class OrderUseCases {
     return this.orderRepository.createOrder(data);
   }
 
+  async payOrder(orderId: string, paymentMethodId: string) {
+    return this.orderRepository.payOrder(orderId, paymentMethodId);
+  }
+
   async getMyOrders() {
     return this.orderRepository.getMyOrders();
   }

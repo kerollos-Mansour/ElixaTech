@@ -10,6 +10,13 @@ export class OrderRepositoryImpl implements IOrderRepository {
     });
   }
 
+  async payOrder(orderId: string, paymentMethodId: string): Promise<Order> {
+    return apiFetch<Order>(`/orders/${orderId}/pay`, {
+      method: "POST",
+      body: JSON.stringify({ paymentMethodId }),
+    });
+  }
+
   async getMyOrders(): Promise<Order[]> {
     return apiFetch<Order[]>("/orders");
   }

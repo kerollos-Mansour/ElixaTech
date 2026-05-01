@@ -173,6 +173,88 @@ button:active:not(:disabled):not(.nav-link), .btn:active {
   animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Background Auras */
+.aura {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: -2;
+  opacity: 0.15;
+  pointer-events: none;
+  animation: aura-move 20s infinite alternate;
+}
+
+@keyframes aura-move {
+  from { transform: translate(-10%, -10%) scale(1); }
+  to { transform: translate(20%, 20%) scale(1.2); }
+}
+
+/* Marquee Effect */
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  background: var(--primary);
+  color: white;
+  padding: 0.6rem 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.marquee-content {
+  display: inline-block;
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Pulse Rings */
+.pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  opacity: 0;
+  animation: pulse 4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes pulse {
+  0% { width: 100px; height: 100px; opacity: 0.5; }
+  100% { width: 500px; height: 500px; opacity: 0; }
+}
+
+/* Floating Badges */
+.floating-badge {
+  position: absolute;
+  padding: 0.8rem 1.2rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  z-index: 5;
+  animation: float-badge 4s ease-in-out infinite alternate;
+}
+
+@keyframes float-badge {
+  from { transform: translateY(0) rotate(-2deg); }
+  to { transform: translateY(-15px) rotate(2deg); }
+}
+
 /* Floating Animation */
 @keyframes float {
   0% { transform: translateY(0px); }

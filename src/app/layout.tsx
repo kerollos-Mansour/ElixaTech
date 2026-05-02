@@ -3,12 +3,12 @@ import Navbar from "@/components/Navbar";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Easy Store | Premium E-commerce Platform",
-  description: "Experience the next generation of online shopping with our premium platform. Built for excellence, designed for you.",
+  title: "ElixaTech | Premium E-commerce Platform",
+  description: "A premium shopping experience powered by ElixaTech.",
   keywords: ["shopping", "ecommerce", "nextjs", "premium", "online store"],
-  authors: [{ name: "Easy Store Team" }],
+  authors: [{ name: "ElixaTech Team" }],
   openGraph: {
-    title: "Easy Store | Premium E-commerce Platform",
+    title: "ElixaTech | Premium E-commerce Platform",
     description: "Experience the next generation of online shopping with our premium platform.",
     type: "website",
   },

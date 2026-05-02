@@ -55,8 +55,8 @@ export default function Navbar() {
       padding: "0 2rem",
       zIndex: 1000,
     }}>
-      <Link href="/" style={{ fontSize: "1.5rem", fontWeight: 700, background: "linear-gradient(to right, var(--primary), var(--accent))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-        Easy Store
+      <Link href="/" style={{ fontSize: "1.5rem", fontWeight: 900, letterSpacing: "-1px", background: "linear-gradient(to right, var(--primary), var(--accent))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+        ElixaTech
       </Link>
       
       <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>

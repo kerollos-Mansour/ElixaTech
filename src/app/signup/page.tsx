@@ -46,7 +46,7 @@ export default function SignupPage() {
         }}>
           <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
             <h1 style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>Create Account</h1>
-            <p style={{ color: "var(--muted)" }}>Join Easy Store and start your shopping journey today.</p>
+            <p style={{ color: "var(--muted)" }}>Join ElixaTech and start your shopping journey today.</p>
           </div>
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>

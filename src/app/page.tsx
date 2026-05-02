@@ -48,7 +48,8 @@ export default function Home() {
           !otherPopular.find(op => op.id === p.id) &&
           !otherNew.find(on => on.id === p.id)
         );
-        setAllProducts(otherAll);
+        // Fallback: If no products left after filtering, show all products to avoid empty section
+        setAllProducts(otherAll.length > 0 ? otherAll : all);
         
         setCategories(cats);
         setUser(userData);
@@ -111,7 +112,7 @@ export default function Home() {
             {/* Logo */}
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <div style={{ width: "32px", height: "32px", background: "var(--primary)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: "bold" }}>E</div>
-              <span style={{ fontSize: "1.2rem", fontWeight: 800, letterSpacing: "-0.5px" }}>easy store.</span>
+              <span style={{ fontSize: "1.2rem", fontWeight: 800, letterSpacing: "-0.5px" }}>ElixaTech</span>
             </div>
 
             {/* Search Bar */}
@@ -153,11 +154,8 @@ export default function Home() {
                   <span style={{ position: "absolute", top: 0, right: 0, width: "8px", height: "8px", background: "var(--accent)", borderRadius: "50%", border: "2px solid var(--card)" }}></span>
                 </div>
               </Link>
-              <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: "0.8rem", marginLeft: "0.5rem" }}>
-                <span style={{ fontSize: "0.9rem", fontWeight: 600 }}>{user?.fullName?.split(" ")[0] || "Guest"}</span>
-                <div style={{ width: "40px", height: "40px", borderRadius: "50%", overflow: "hidden", background: "var(--secondary)" }}>
-                  <img src={user?.avatarUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"} alt="User" style={{ width: "100%", height: "100%" }} />
-                </div>
+              <Link href="/profile" style={{ display: "flex", alignItems: "center", marginLeft: "0.5rem" }}>
+                <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--foreground)" }}>{user?.fullName?.split(" ")[0] || "Guest"}</span>
               </Link>
             </div>
           </header>
@@ -441,13 +439,10 @@ export default function Home() {
             <p style={{ color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", fontSize: "0.75rem", letterSpacing: "2px", marginBottom: "2.5rem" }}>
               Trusted by leading brands worldwide
             </p>
-            <div style={{ display: "flex", justifyContent: "space-around", alignItems: "center", flexWrap: "wrap", gap: "3rem", opacity: 0.6 }}>
-               {/* Placeholder brand names since I don't have SVGs handy */}
-               {["APPLE", "SAMSUNG", "SONY", "BOSE", "BEATS", "MICROSOFT"].map(brand => (
-                 <span key={brand} style={{ fontSize: "1.5rem", fontWeight: 900, color: "var(--foreground)", letterSpacing: "2px" }}>{brand}</span>
-               ))}
+                {["APPLE", "SAMSUNG", "SONY", "BOSE", "BEATS", "MICROSOFT"].map(brand => (
+                  <span key={brand} style={{ fontSize: "1.5rem", fontWeight: 900, color: "var(--foreground)", letterSpacing: "2px" }}>{brand}</span>
+                ))}
             </div>
-          </div>
         </section>
 
         {/* Categories Grid */}
@@ -487,15 +482,17 @@ export default function Home() {
         </section>
 
         {/* Product Grid Section */}
-        <section style={{ maxWidth: "1600px", margin: "6rem auto", padding: "0 2rem" }}>
-          <div style={{ textAlign: "center", marginBottom: "4rem" }}>
+        <section className="section-pattern" style={{ maxWidth: "1600px", margin: "6rem auto", padding: "4rem 2rem" }}>
+          <div className="reveal-on-scroll visible" style={{ textAlign: "center", marginBottom: "4rem" }}>
             <h2 style={{ fontSize: "2.5rem", fontWeight: 800, marginBottom: "1rem" }}>Trending Now</h2>
             <p style={{ color: "var(--muted)", maxWidth: "600px", margin: "0 auto" }}>Discover our most loved products across all categories.</p>
           </div>
           
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "2rem" }}>
-            {allProducts.slice(0, 8).map(product => (
-              <ProductCard key={product.id} product={product} />
+            {allProducts.slice(0, 8).map((product, index) => (
+              <div key={product.id} className="stagger-item" style={{ animationDelay: `${index * 0.1}s` }}>
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
 
@@ -515,35 +512,108 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer style={{ maxWidth: "1600px", margin: "0 auto", padding: "4rem 2rem 2rem", borderTop: "1px solid var(--border)" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "4rem", marginBottom: "4rem" }}>
-            <div>
-               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem" }}>
-                  <div style={{ width: "24px", height: "24px", background: "var(--primary)", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "0.7rem" }}>E</div>
-                  <span style={{ fontWeight: 800 }}>easy store.</span>
+        {/* Premium Footer */}
+        <footer style={{ 
+          maxWidth: "1600px", 
+          margin: "4rem auto 0", 
+          padding: "5rem 2rem 2rem", 
+          borderTop: "1px solid var(--border)",
+          background: "linear-gradient(to bottom, transparent, var(--secondary))",
+          borderRadius: "3rem 3rem 0 0"
+        }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1.5fr", gap: "4rem", marginBottom: "4rem" }}>
+            {/* Brand Info */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+               <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
+                  <div style={{ width: "40px", height: "40px", background: "var(--primary)", borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "1.2rem", fontWeight: 900 }}>E</div>
+                  <span style={{ fontWeight: 900, fontSize: "1.5rem", letterSpacing: "-1px" }}>ElixaTech</span>
                </div>
-               <p style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.8 }}>The world's most trusted marketplace for premium goods. Quality and satisfaction guaranteed.</p>
+               <p style={{ color: "var(--muted)", fontSize: "1.1rem", lineHeight: 1.8, maxWidth: "350px" }}>
+                 The world's most trusted marketplace for premium goods. We deliver quality and satisfaction directly to your doorstep.
+               </p>
+               <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="card-hover" style={{ width: "40px", height: "40px", borderRadius: "50%", background: "white", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                       <div style={{ width: "18px", height: "18px", background: "var(--muted)", borderRadius: "2px" }}></div>
+                    </div>
+                  ))}
+               </div>
             </div>
+
+            {/* Quick Links 1 */}
             <div>
-              <h4 style={{ marginBottom: "1.5rem" }}>Shop</h4>
-              <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.8rem", color: "var(--muted)", fontSize: "0.9rem" }}>
-                <li><Link href="/products">All Products</Link></li>
-                <li><Link href="/products?filter=new">New Arrivals</Link></li>
-                <li><Link href="/products?filter=top">Top Rated</Link></li>
+              <h4 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "2rem", color: "var(--foreground)" }}>Shop</h4>
+              <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "1.2rem", color: "var(--muted)", fontSize: "1.05rem", fontWeight: 600 }}>
+                <li><Link href="/products" className="card-hover" style={{ display: "inline-block" }}>All Products</Link></li>
+                <li><Link href="/products?filter=new" className="card-hover" style={{ display: "inline-block" }}>New Arrivals</Link></li>
+                <li><Link href="/products?filter=top" className="card-hover" style={{ display: "inline-block" }}>Top Rated</Link></li>
+                <li><Link href="/offers" className="card-hover" style={{ display: "inline-block" }}>Special Offers</Link></li>
               </ul>
             </div>
+
+            {/* Quick Links 2 */}
             <div>
-              <h4 style={{ marginBottom: "1.5rem" }}>Support</h4>
-              <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.8rem", color: "var(--muted)", fontSize: "0.9rem" }}>
-                <li><Link href="#">Help Center</Link></li>
-                <li><Link href="#">Contact Us</Link></li>
-                <li><Link href="#">Privacy Policy</Link></li>
+              <h4 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "2rem", color: "var(--foreground)" }}>Support</h4>
+              <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "1.2rem", color: "var(--muted)", fontSize: "1.05rem", fontWeight: 600 }}>
+                <li><Link href="#" className="card-hover" style={{ display: "inline-block" }}>Help Center</Link></li>
+                <li><Link href="#" className="card-hover" style={{ display: "inline-block" }}>Contact Us</Link></li>
+                <li><Link href="#" className="card-hover" style={{ display: "inline-block" }}>Privacy Policy</Link></li>
+                <li><Link href="#" className="card-hover" style={{ display: "inline-block" }}>Terms of Service</Link></li>
               </ul>
+            </div>
+
+            {/* Newsletter Section */}
+            <div style={{ 
+              background: "white", 
+              padding: "2.5rem", 
+              borderRadius: "2rem", 
+              border: "1px solid var(--border)",
+              boxShadow: "0 20px 40px rgba(0,0,0,0.03)"
+            }}>
+               <h4 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "1rem" }}>Stay in the loop</h4>
+               <p style={{ fontSize: "0.95rem", color: "var(--muted)", marginBottom: "1.5rem" }}>Subscribe to get special offers and first look at new arrivals.</p>
+               <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <input 
+                    type="email" 
+                    placeholder="Your email" 
+                    style={{ 
+                      flex: 1, 
+                      padding: "0.8rem 1.2rem", 
+                      borderRadius: "12px", 
+                      background: "var(--secondary)", 
+                      border: "1px solid var(--border)",
+                      outline: "none",
+                      fontSize: "0.9rem"
+                    }}
+                  />
+                  <button style={{ 
+                    padding: "0.8rem 1.2rem", 
+                    background: "var(--primary)", 
+                    color: "white", 
+                    borderRadius: "12px", 
+                    fontWeight: 700,
+                    fontSize: "0.9rem"
+                  }}>Join</button>
+               </div>
             </div>
           </div>
-          <div style={{ textAlign: "center", color: "var(--muted)", fontSize: "0.8rem", paddingTop: "2rem", borderTop: "1px solid var(--border)" }}>
-            &copy; {new Date().getFullYear()} Easy Store. All rights reserved.
+          
+          <div style={{ 
+            textAlign: "center", 
+            color: "var(--muted)", 
+            fontSize: "1rem", 
+            paddingTop: "3rem", 
+            borderTop: "1px solid var(--border)",
+            fontWeight: 600,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center"
+          }}>
+            <span>&copy; {new Date().getFullYear()} ElixaTech. All rights reserved.</span>
+            <div style={{ display: "flex", gap: "2rem" }}>
+               <span>English (US)</span>
+               <span>USD ($)</span>
+            </div>
           </div>
         </footer>
       </div>

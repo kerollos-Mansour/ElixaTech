@@ -4,6 +4,7 @@ export interface User {
   email: string;
   phoneNumber: string;
   role: "CUSTOMER" | "ADMIN";
+  createdAt: string;
 }
 
 export interface AuthResponse {

@@ -11,19 +11,19 @@ export async function apiFetch<T>(
     ? endpoint.replace("/api", "") 
     : endpoint;
 
-  const headers: HeadersInit = { ...options.headers };
+  const headers = new Headers(options.headers);
   
-  if (headers["Content-Type"] === "undefined") {
-    delete (headers as any)["Content-Type"];
+  if (headers.get("Content-Type") === "undefined") {
+    headers.delete("Content-Type");
   } else if (options.body && !(options.body instanceof FormData)) {
-    (headers as any)["Content-Type"] = "application/json";
+    headers.set("Content-Type", "application/json");
   }
 
   // Automatically add the auth_token if it exists in localStorage
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("auth_token");
     if (token) {
-      (headers as any)["Authorization"] = `Bearer ${token}`;
+      headers.set("Authorization", `Bearer ${token}`);
     }
   }
 

@@ -20,7 +20,9 @@ export default function LoginPage() {
     try {
       await loginUseCase.execute(formData.email, formData.password as any);
       setStatus({ type: "success", message: "Login successful! Redirecting..." });
-      setTimeout(() => router.push("/"), 1500);
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1500);
     } catch (error: any) {
       setStatus({ type: "error", message: error.message || "Login failed" });
     }

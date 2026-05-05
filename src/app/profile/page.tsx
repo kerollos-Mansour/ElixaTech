@@ -98,7 +98,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label style={{ color: "var(--muted)", fontSize: "0.9rem" }}>Joined</label>
-                <p style={{ fontSize: "1.1rem", fontWeight: 600 }}>{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}</p>
+                <p style={{ fontSize: "1.1rem", fontWeight: 600 }}>{user && user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}</p>
               </div>
             </div>
           </div>

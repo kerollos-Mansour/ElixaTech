@@ -19,12 +19,9 @@ export async function apiFetch<T>(
     headers.set("Content-Type", "application/json");
   }
 
-  // Automatically add the auth_token if it exists in localStorage
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("auth_token");
-    if (token) {
-      headers.set("Authorization", `Bearer ${token}`);
-    }
+  const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
   }
 
   const response = await fetch(`${BASE_URL}${sanitizedEndpoint}`, {

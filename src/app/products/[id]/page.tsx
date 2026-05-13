@@ -41,16 +41,22 @@ export default function ProductDetailPage() {
   const fetchData = async () => {
     if (!id) return;
     try {
-      const [prodData, reviewsData, favsData] = await Promise.all([
+      const [prodData, reviewsData] = await Promise.all([
         getProductDetailUseCase.execute(id as string),
         getReviewsUseCase.execute(id as string) as any,
-        favoriteUseCases.getFavorites()
       ]);
       setProduct(prodData);
-      
-      // Check if current product is in favorites
-      const favs = favsData as Product[];
-      setIsFavorite(favs.some(f => (f.id === id || (f as any).productId === id)));
+
+      const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+      if (token) {
+        try {
+          const favsData = await favoriteUseCases.getFavorites();
+          const favs = favsData as Product[];
+          setIsFavorite(favs.some(f => (f.id === id || (f as any).productId === id)));
+        } catch (favErr) {
+          console.error("Failed to fetch favorites", favErr);
+        }
+      }
       
       if (reviewsData && !Array.isArray(reviewsData)) {
         setReviews(reviewsData.reviews || []);

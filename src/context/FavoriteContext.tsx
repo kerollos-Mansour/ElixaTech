@@ -14,6 +14,11 @@ export function FavoriteProvider({ children }: { children: ReactNode }) {
   const [favCount, setFavCount] = useState(0);
 
   const refreshFavCount = async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+    if (!token) {
+      setFavCount(0);
+      return;
+    }
     try {
       const favs = await favoriteUseCases.getFavorites();
       setFavCount(Array.isArray(favs) ? favs.length : 0);

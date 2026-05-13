@@ -14,6 +14,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cartCount, setCartCount] = useState(0);
 
   const refreshCartCount = async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+    if (!token) {
+      setCartCount(0);
+      return;
+    }
     try {
       const cart = await cartUseCases.getCart() as any;
       const items = cart?.items || cart?.data?.items || [];

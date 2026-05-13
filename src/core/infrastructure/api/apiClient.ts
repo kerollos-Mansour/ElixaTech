@@ -35,6 +35,12 @@ export async function apiFetch<T>(
   const data = await response.json();
 
   if (!response.ok) {
+    if (response.status === 401) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("auth_token");
+        window.location.href = "/login";
+      }
+    }
     throw new Error(data.message || "An error occurred");
   }
 

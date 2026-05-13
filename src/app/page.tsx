@@ -21,13 +21,14 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
         const [hottest, popular, newItems, cats, all, userData] = await Promise.all([
           filterProductsUseCase.execute("hottest"),
           filterProductsUseCase.execute("popular"),
           filterProductsUseCase.execute("new"),
           categoryRepository.getAllCategories(),
           getProductsUseCase.execute(),
-          getMeUseCase.execute().catch(() => null)
+          token ? getMeUseCase.execute().catch(() => null) : Promise.resolve(null)
         ]);
 
         const heroProduct = hottest[0] || null;

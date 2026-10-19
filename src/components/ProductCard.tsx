@@ -57,17 +57,28 @@ export default function ProductCard({ product, isInitialFavorite = false, onRemo
     }
   };
 
+  const cacheProductData = () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(`cached_product_${product.id}`, JSON.stringify(product));
+    }
+  };
+
   return (
-    <Link href={`/products/${product.id}`} className="glass animate-fade-in card-hover" style={{
-      display: "flex",
-      flexDirection: "column",
-      padding: "1rem",
-      textDecoration: "none",
-      color: "inherit",
-      height: "100%",
-      position: "relative",
-      overflow: "hidden"
-    }}>
+    <Link 
+      href={`/products/${product.id}`} 
+      onClick={cacheProductData}
+      onMouseEnter={cacheProductData}
+      className="glass animate-fade-in card-hover" 
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        padding: "1rem",
+        textDecoration: "none",
+        color: "inherit",
+        height: "100%",
+        position: "relative",
+        overflow: "hidden"
+      }}>
       <div style={{ position: "relative", marginBottom: "1rem" }}>
         <div style={{
           aspectRatio: "1/1",

@@ -1,6 +1,6 @@
 // Configuration for API endpoints
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000",
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
   API_PREFIX: "/api",
   get FULL_URL() {
     return `${this.BASE_URL}${this.API_PREFIX}`;
@@ -30,7 +30,7 @@ export const API_CONFIG = {
     // Cloudinary or absolute URLs
     if (path.startsWith("http")) return path;
     
-    const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
     const cleanPath = path.startsWith("/") ? path : `/${path}`;
     return `${base}${cleanPath}`;
   }

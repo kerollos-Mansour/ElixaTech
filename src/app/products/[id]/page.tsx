@@ -26,45 +26,59 @@ export default function ProductDetailPage() {
   const { refreshCartCount } = useCart();
   const { refreshFavCount } = useFavorite();
   const { id } = useParams();
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<Product | null>(() => {
+    if (typeof window !== "undefined" && id) {
+      const cached = sessionStorage.getItem(`cached_product_${id}`);
+      if (cached) {
+        try {
+          return JSON.parse(cached);
+        } catch (e) {
+          return null;
+        }
+      }
+    }
+    return null;
+  });
+  const [reviewsLoading, setReviewsLoading] = useState(true);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [ratings, setRatings] = useState({ average: 0, total: 0 });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    if (typeof window !== "undefined" && id) {
+      return !sessionStorage.getItem(`cached_product_${id}`);
+    }
+    return true;
+  });
   const [adding, setAdding] = useState(false);
   const [submittingReview, setSubmittingReview] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(() => {
+    if (typeof window !== "undefined" && id) {
+      const cached = sessionStorage.getItem(`cached_product_${id}`);
+      if (cached) {
+        try {
+          const p = JSON.parse(cached);
+          return getImageUrl(p.images || p.image || p.imageUrl);
+        } catch (e) {
+          return null;
+        }
+      }
+    }
+    return null;
+  });
   const [quantity, setQuantity] = useState(1);
   const [newReview, setNewReview] = useState({ rating: 0, comment: "" });
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const fetchData = async () => {
+  // Step 1: Fetch product details ONLY (fast, unblocks the UI)
+  const fetchProduct = async () => {
     if (!id) return;
     try {
-      const [prodData, reviewsData] = await Promise.all([
-        getProductDetailUseCase.execute(id as string),
-        getReviewsUseCase.execute(id as string) as any,
-      ]);
+      const prodData = await getProductDetailUseCase.execute(id as string);
       setProduct(prodData);
-
-      const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
-      if (token) {
-        try {
-          const favsData = await favoriteUseCases.getFavorites();
-          const favs = favsData as Product[];
-          setIsFavorite(favs.some(f => (f.id === id || (f as any).productId === id)));
-        } catch (favErr) {
-          console.error("Failed to fetch favorites", favErr);
-        }
+      // Update cache with fresh full data
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(`cached_product_${id}`, JSON.stringify(prodData));
       }
-      
-      if (reviewsData && !Array.isArray(reviewsData)) {
-        setReviews(reviewsData.reviews || []);
-        setRatings({ average: reviewsData.averageRating || 0, total: reviewsData.totalReviews || 0 });
-      } else {
-        setReviews(reviewsData || []);
-      }
-      
       const initialImg = getImageUrl(prodData.images || prodData.image || prodData.imageUrl);
       setSelectedImage(initialImg);
     } catch (err: any) {
@@ -74,8 +88,40 @@ export default function ProductDetailPage() {
     }
   };
 
+  // Step 2: Fetch reviews + favorites in the background (non-blocking)
+  const fetchSecondary = async () => {
+    if (!id) return;
+    setReviewsLoading(true);
+    try {
+      const reviewsData = await getReviewsUseCase.execute(id as string) as any;
+      if (reviewsData && !Array.isArray(reviewsData)) {
+        setReviews(reviewsData.reviews || []);
+        setRatings({ average: reviewsData.averageRating || 0, total: reviewsData.totalReviews || 0 });
+      } else {
+        setReviews(reviewsData || []);
+      }
+    } catch (err) {
+      console.error("Failed to load reviews", err);
+    } finally {
+      setReviewsLoading(false);
+    }
+
+    // Check favorites independently, doesn't affect page rendering
+    const token = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+    if (token) {
+      try {
+        const favsData = await favoriteUseCases.getFavorites();
+        const favs = favsData as Product[];
+        setIsFavorite(favs.some(f => (f.id === id || (f as any).productId === id)));
+      } catch (favErr) {
+        console.error("Failed to fetch favorites", favErr);
+      }
+    }
+  };
+
   useEffect(() => {
-    fetchData();
+    fetchProduct();
+    fetchSecondary(); // starts in parallel, does NOT block product rendering
   }, [id]);
 
   const handleAddToCart = async () => {
@@ -118,7 +164,32 @@ export default function ProductDetailPage() {
     }
   };
 
-  if (loading) return <main style={{ padding: "8rem 1rem", textAlign: "center" }}>Loading product details...</main>;
+  if (loading) return (
+    <main style={{ padding: "8rem 1rem 4rem", maxWidth: "1200px", margin: "0 auto" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: "4rem", marginBottom: "6rem" }}>
+        {/* Image Skeleton */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          <div className="skeleton-pulse" style={{ aspectRatio: "1/1", borderRadius: "2rem" }}></div>
+          <div style={{ display: "flex", gap: "1rem" }}>
+            {[1, 2, 3].map(i => <div key={i} className="skeleton-pulse" style={{ width: "80px", height: "80px", borderRadius: "0.5rem", flexShrink: 0 }}></div>)}
+          </div>
+        </div>
+        {/* Info Skeleton */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", paddingTop: "1rem" }}>
+          <div className="skeleton-pulse" style={{ height: "1rem", width: "30%" }}></div>
+          <div className="skeleton-pulse" style={{ height: "4rem", width: "80%" }}></div>
+          <div className="skeleton-pulse" style={{ height: "1rem", width: "50%" }}></div>
+          <div className="skeleton-pulse" style={{ height: "5rem", width: "100%" }}></div>
+          <div className="skeleton-pulse" style={{ height: "3rem", width: "40%" }}></div>
+          <div className="skeleton-pulse" style={{ height: "1rem", width: "25%" }}></div>
+          <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+            <div className="skeleton-pulse" style={{ height: "3.5rem", flex: 1, borderRadius: "2rem" }}></div>
+            <div className="skeleton-pulse" style={{ height: "3.5rem", width: "60px", borderRadius: "2rem" }}></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
   if (error || !product) return <main style={{ padding: "8rem 1rem", textAlign: "center", color: "#ef4444" }}>{error || "Product not found"}</main>;
 
   const allImages = product.images || [];
@@ -244,7 +315,24 @@ export default function ProductDetailPage() {
             
             {/* Reviews List */}
             <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-              {reviews.length === 0 ? (
+              {reviewsLoading ? (
+                // Skeleton for reviews while loading in background
+                <div className="reviews-loading">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="glass" style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+                      <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                        <div className="skeleton-pulse" style={{ width: "45px", height: "45px", borderRadius: "50%", flexShrink: 0 }}></div>
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                          <div className="skeleton-pulse" style={{ height: "0.9rem", width: "30%" }}></div>
+                          <div className="skeleton-pulse" style={{ height: "0.75rem", width: "20%" }}></div>
+                        </div>
+                      </div>
+                      <div className="skeleton-pulse" style={{ height: "0.9rem", width: "100%" }}></div>
+                      <div className="skeleton-pulse" style={{ height: "0.9rem", width: "80%" }}></div>
+                    </div>
+                  ))}
+                </div>
+              ) : reviews.length === 0 ? (
                 <div className="glass" style={{ padding: "4rem", textAlign: "center", color: "var(--muted)" }}>
                   <p style={{ fontSize: "1.2rem" }}>No reviews yet. Share your thoughts!</p>
                 </div>

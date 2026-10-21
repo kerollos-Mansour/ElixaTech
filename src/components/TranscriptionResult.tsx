@@ -20,7 +20,6 @@ export const TranscriptionResult: React.FC<TranscriptionResultProps> = ({
   const [copied, setCopied] = useState(false);
   const transcribedBlobRef = useRef<Blob | null>(null);
 
-  // Automatically transcribe when audio blob becomes available after recording stops
   useEffect(() => {
     if (
       status === 'completed' &&
@@ -50,7 +49,6 @@ export const TranscriptionResult: React.FC<TranscriptionResultProps> = ({
         });
     }
 
-    // Reset state when a new recording starts
     if (status === 'idle' || status === 'recording') {
       setTranscription(null);
       setApiError(null);
@@ -69,66 +67,60 @@ export const TranscriptionResult: React.FC<TranscriptionResultProps> = ({
   const isCompleted = status === 'completed';
 
   return (
-    <div className="w-full bg-slate-900/90 rounded-2xl border border-slate-800 p-5 shadow-2xl backdrop-blur-xl transition-all duration-300">
-      <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-800/80">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400">
-            <FileText className="w-4 h-4" />
+    <div className="w-full bg-slate-900/90 rounded-2xl border border-slate-700/50 p-6 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-800/80">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
+            <FileText className="w-5 h-5" />
           </div>
-          <h3 className="font-semibold text-slate-200 text-sm tracking-wide">Transcription</h3>
+          <h3 className="font-semibold text-slate-200 tracking-wide">Transcription</h3>
         </div>
         {transcription && (
           <button
             onClick={copyToClipboard}
-            className="text-xs px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors flex items-center gap-1"
+            className="text-xs px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors flex items-center gap-2 font-medium"
             aria-label="Copy transcription"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : null}
-            <span>{copied ? 'Copied!' : 'Copy'}</span>
+            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : null}
+            <span>{copied ? 'Copied!' : 'Copy Text'}</span>
           </button>
         )}
       </div>
 
-      {/* Content Area */}
-      <div className="min-h-[100px] flex flex-col justify-center">
-        {/* Auto-transcribing spinner */}
+      <div className="min-h-[200px]">
         {isTranscribing && (
-          <div className="flex flex-col items-center gap-2 py-4 text-indigo-300 animate-fade-in">
-            <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
-            <p className="text-sm font-medium">Transcribing your voice...</p>
-            <p className="text-xs text-slate-500">Sending audio to Whisper via backend...</p>
+          <div className="flex flex-col items-center justify-center gap-4 py-12 text-indigo-300 h-full animate-fade-in">
+            <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
+            <div>
+              <p className="text-sm font-medium mb-1">Transcribing your voice...</p>
+              <p className="text-xs text-slate-500">Sending audio to Whisper via backend</p>
+            </div>
           </div>
         )}
 
-        {/* Successful transcription */}
         {!isTranscribing && transcription && (
-          <div
-            dir="auto"
-            className="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 text-white font-sans text-base leading-relaxed break-words tracking-wide animate-fade-in"
-          >
-            &quot;{transcription}&quot;
+          <div className="p-5 rounded-xl bg-slate-950/70 border border-slate-800/80 text-white font-sans text-base leading-relaxed break-words tracking-wide animate-fade-in">
+            "{transcription}"
           </div>
         )}
 
-        {/* Idle / waiting state */}
         {!isTranscribing && !transcription && !apiError && (
-          <div className="text-center py-4 px-2">
-            <p className="text-slate-400 text-sm italic">
+          <div className="text-center py-12 px-4 text-slate-500">
+            <p className="text-sm italic">
               {isCompleted
-                ? 'Processing complete. Transcription not yet available.'
-                : 'Your transcription will appear here...'}
+                ? 'Transcription will appear here after processing.'
+                : 'Start recording to generate transcription.'}
             </p>
           </div>
         )}
       </div>
 
-      {/* API Error Display */}
       {apiError && !isTranscribing && (
-        <div className="mt-4 p-3 rounded-xl bg-red-950/40 border border-red-800/60 text-red-300 text-xs flex items-start gap-2.5 animate-fade-in">
-          <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <p className="font-semibold text-red-200">Transcription Error</p>
-            <p className="text-red-300/90 leading-relaxed">{apiError}</p>
+        <div className="mt-5 p-4 rounded-xl bg-red-950/40 border border-red-500/20 text-red-200 text-sm flex items-start gap-3 animate-fade-in">
+          <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-red-300">Transcription Error</p>
+            <p className="text-red-300/80 mt-1 leading-relaxed">{apiError}</p>
           </div>
         </div>
       )}

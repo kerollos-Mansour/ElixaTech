@@ -9,17 +9,20 @@ export interface TranscriptionResponse {
 
 /**
  * Sends a recorded audio Blob to the backend transcription API.
- *
- * The browser calls /api/transcribe (same origin).
- * Next.js rewrites/proxies that to http://localhost:3000/api/transcribe (Fastify).
- *
- * IMPORTANT: Do NOT set Content-Type manually — the browser sets the correct
- * multipart boundary automatically when using FormData.
+ * Only works on the client side.
  */
 export async function transcribeAudio(
   audioBlob: Blob,
   filename: string = 'recording.wav'
 ): Promise<TranscriptionResponse> {
+  // Safety check for client-side only
+  if (typeof window === 'undefined') {
+    return {
+      success: false,
+      error: 'Transcription is only available in the browser',
+    };
+  }
+
   const formData = new FormData();
   formData.append('audio', audioBlob, filename);
 
@@ -27,7 +30,6 @@ export async function transcribeAudio(
     const response = await fetch('/api/transcribe', {
       method: 'POST',
       body: formData,
-      // DO NOT set Content-Type header — browser handles multipart boundary
     });
 
     if (!response.ok) {
@@ -45,6 +47,9 @@ export async function transcribeAudio(
     return data;
   } catch (error) {
     console.error('Transcription error:', error);
-    throw error;
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error during transcription',
+    };
   }
 }

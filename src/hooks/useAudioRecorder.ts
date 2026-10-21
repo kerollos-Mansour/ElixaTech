@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import * as RecordRTC from 'recordrtc';
 
 /**
  * Recording status types
@@ -38,14 +37,24 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
   const [error, setError] = useState<string | null>(null);
   const [audioLevel, setAudioLevel] = useState<number>(0);
 
-  // RecordRTC ref for WAV recording
-  const recordrtcRef = useRef<RecordRTC.StereoAudioRecorder | null>(null);
+  // RecordRTC refs for WAV recording
+  const recordrtcRef = useRef<any | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animFrameRef = useRef<number | null>(null);
   const currentUrlRef = useRef<string | null>(null);
+  let RecordRTC: any = null;
+
+  // Lazy load RecordRTC on client side only
+  const getRecordRTC = async () => {
+    if (!RecordRTC && typeof window !== 'undefined') {
+      const module = await import('recordrtc');
+      RecordRTC = module;
+    }
+    return RecordRTC;
+  };
 
   // Format seconds to MM:SS
   const formatDuration = useCallback((seconds: number): string => {
@@ -76,8 +85,6 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
       audioContextRef.current = null;
     }
     if (recordrtcRef.current) {
-      // StereoAudioRecorder doesn't have a destroy method
-      // The stream is already stopped and internal resources will be cleaned up
       recordrtcRef.current = null;
     }
     if (mediaStreamRef.current) {
@@ -143,8 +150,17 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
         console.warn('Web Audio visualizer initialization failed:', e);
       }
 
+      // Lazy load RecordRTC
+      const recordrtcModule = await getRecordRTC();
+      if (!recordrtcModule) {
+        setError('Recording library failed to load');
+        setStatus('error');
+        stopStream();
+        return;
+      }
+
       // Use StereoAudioRecorder with proper configuration
-      const recordrtc = new RecordRTC.StereoAudioRecorder(stream, {
+      const recordrtc = new recordrtcModule.StereoAudioRecorder(stream, {
         mimeType: 'audio/wav',
         bufferSize: 4096,
         numberOfAudioChannels: 1,
@@ -191,7 +207,7 @@ export function useAudioRecorder(): UseAudioRecorderReturn {
       setStatus('processing');
 
       // Stop recording and get the WAV blob
-      recordrtcRef.current.stop((wavBlob) => {
+      recordrtcRef.current.stop((wavBlob:Blob) => {
         const wavUrl = URL.createObjectURL(wavBlob);
 
         currentUrlRef.current = wavUrl;
